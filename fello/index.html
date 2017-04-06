@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html ng-app="fello" ng-controller="MainController">
+<head>
+<link rel="stylesheet" href="/css/bootstrap.css">
+<link rel="stylesheet" href="/css/bootstrap-theme.css">
+<link rel="stylesheet" href="/css/fello.css">
+<title>{{title}}</title>
+</head>
+<body>
+<div class="cardEditPanelBG" ng-show="lightbox" ng-click="cancelEdit()"></div>
+<nav class="navbar navbar-default">
+<div class="container-fluid ">
+
+<div class="col-sm-12 padding-hor-o topbar-holder">
+<button type="submit" class="btn btn-primary">
+  <i class="glyphicon glyphicon-tasks"></i> Boards
+</button>
+
+<a class="navbar-brand logo" href="#" style="">Trello</a>
+
+<div class="btn-group pull-right">
+  <button type="button" class="btn btn-default btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    <i class="glyphicon glyphicon-bell"></i>
+  </button>
+  <ul class="dropdown-menu" role="menu">
+    <li><a href="#">Notification</a></li>
+    <li class="divider"></li>
+    <li><a href="#">Notification</a></li>
+    <li class="divider"></li>
+    <li><a href="#">Notification</a></li>
+    <li class="divider"></li>
+    <li><a href="#">Old Notification</a></li>
+  </ul>
+</div>
+
+ <div class="btn-group pull-right profile-btn">
+  <button type="button" class="btn btn-default btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    Marimuthu <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" role="menu">
+    <li><a href="#">Profile</a></li>
+    <li><a href="#">Cards</a></li>
+    <li><a href="#">Settings</a></li>
+    <li class="divider"></li>
+    <li><a href="#">Language</a></li>
+    <li class="divider"></li>
+    <li><a href="#">Log out</a></li>
+  </ul>
+</div>
+</div>
+</div><!-- /.container-fluid -->
+</nav>
+
+<div class="col-sm-12 cont-holder">
+	<span class="lead icon-pad">Welcome board</span> <i class="glyphicon glyphicon-star-empty icon-pad"></i> 
+</div>
+
+<div class="col-sm-12">
+
+	<div class="board">
+		<div class="list-holder" ng-repeat="list in lists">
+			<div class="list">
+			<div class="card-title">
+				<div class="card-content-holder" ng-show="editListIndex[$index]" ng-mouseover="cardTitleHover[$index]=false" ng-mouseleave="cardTitleHover[$index]=true">
+				<div class="card-options" ng-hide="cardTitleHover[$index]">
+				<i class="glyphicon glyphicon-pencil icon-pad edit-icon" ng-click="editListUI($index);"></i>&nbsp;<i class="glyphicon glyphicon-trash icon-pad delete-icon" ng-click="deleteList($index)"></i>
+				</div>
+					<span ng-show="editListIndex[$index]">
+						{{list.name}}
+					</span>
+				</div>
+			</div>
+			<div class="card-title" ng-hide="editListIndex[$index]">
+				<input type="text" id="title-{{$index}}" ng-model="editList[$index]">
+			</div>
+			<div class="card-add" ng-hide="editListIndex[$index]">
+					<button type="submit" class="btn btn-success"
+					ng-click="saveList($index,editList[$index])">
+  					<i class="glyphicon glyphicon-plus"></i> Save
+					</button>
+					<button class="btn btn-primary"
+					ng-click="cancelSaveList($index)">
+  					<i class="glyphicon glyphicon-remove"></i>
+					</button>
+			</div>
+
+			<div class="cards-scrollable" id="{{list.id}}" ui-sortable="sortableOptionsList[$index]" ng-model="lists[$index].cards">
+			<div class="card card-{{list.id}}" ng-repeat="card in lists[$index].cards"  id="card{{$parent.$index}}{{$index}}" >
+				<div class="card-content-holder" ng-mouseover="cardHover[$parent.$index][$index]=false" ng-mouseleave="cardHover[$parent.$index][$index]=true" ng-click="editCard($parent.$index,$index)">
+					<div class="card-options {{$parent.$index}}cardHover{{$index}}" ng-hide="cardHover[$parent.$index][$index]">
+						<i class="glyphicon glyphicon-pencil icon-pad edit-icon" ng-click="editCard($parent.$index,$index)"></i>&nbsp;<i class="glyphicon glyphicon-trash icon-pad delete-icon" ng-click="deleteCard($parent.$index,$index)"></i>
+					</div>
+					<span class="card-content" ng-show="editCardIndex[$parent.$index][$index]" id="{{$parent.$index}}cardContent{{$index}}">
+						{{card.content}}
+					</span>
+				</div>
+				<div id="cardEditPanel{{$parent.$index}}{{$index}}" ng-hide="editCardIndex[$parent.$index][$index]">
+				<div class=""  >
+					<textarea type="text" ng-model="editCardContent[$parent.$index][$index]" id="editCardContent{{$parent.$index}}{{$index}}" ng-change="onCardInput($parent.$index,$index)"/></textarea>
+				</div>
+				<div class="card-add">
+					<button type="submit" class="btn btn-success" ng-click="saveCard($parent.$index,$index)">
+  						<i class="glyphicon glyphicon-floppy-disk"></i> Save
+					</button>
+					<button class="btn btn-primary" ng-click="cancelEditCard($parent.$index,$index)">
+  						<i class="glyphicon glyphicon-remove"></i>
+					</button>
+				</div>
+				</div>
+			</div>
+
+			<div class="card card-{{list.id}}" id="card-{{list.id}}" ng-hide="addCardIndex[$index]">
+				<textarea type="text" ng-model="newCardContent[$index]" id="addCardContent{{$index}}" ng-change="onAddCardInput($index)"/></textarea>
+			</div>
+
+
+
+			</div>
+
+			<div class="card-add " ng-hide="addCardIndex[$index]">
+				<button type="submit" class="btn btn-success" ng-click="addCard($index,newCardContent[$index]);">
+  				<i class="glyphicon glyphicon-plus"></i> Add
+				</button>
+				<button class="btn btn-primary" ng-click="cancelAdd($index)">
+  				<i class="glyphicon glyphicon-remove"></i>
+				</button>
+			</div>
+
+			<div class="card-add cav card-add-active" ng-click="addCardProcess($index)" ng-show="addCardIndex[$index]">
+				Add card...
+			</div>
+
+
+
+			</div>
+		</div>
+		<div class="list-holder">
+			<div class="add-list">
+			<div class="card-title" ng-show="newListBool">
+			<button type="submit" class="btn btn-primary add-list-button" ng-click="addNewListUI()">
+  			<i class="glyphicon glyphicon-plus"></i> New List
+			</button>
+			</div>
+
+			<div class="card-title" ng-hide="newListBool">
+				<input type="text" ng-model="newList">
+			</div>
+			<div class="card-add " ng-hide="newListBool">
+				<button type="submit" class="btn btn-primary" ng-click="addList(newList)">
+  				<i class="glyphicon glyphicon-plus"></i> Create
+				</button>
+				<button class="btn btn-primary" ng-click="cancelList()">
+  				<i class="glyphicon glyphicon-remove"></i> Cancel
+				</button>
+			</div>
+			</div>
+		</div>
+	</div>
+	</div>
+
+
+<foot>
+	<script src="/js/jquery-2.1.4.min.js"></script>
+	<script src="/js/localstoorage.js"></script>
+	<script src="/js/angular.1-3-16.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/jquery-ui.js"></script>
+	<script src="/js/sortable.js"></script>
+	<script src="/js/fello.js"></script>
+	<script src="/js/app.js"></script>
+	<script src="/js/controllers/MainController.js"></script>
+</foot>
+</body>
+</html>
